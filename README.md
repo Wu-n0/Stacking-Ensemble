@@ -1,65 +1,101 @@
-# **Title: House Price Prediction using Advanced Regression Techniques**
+# Ensemble Learning - Stacking Explained  
+## Improving Predictions by Combining Models
 
-**Introduction**
+This project explores **stacking**, a powerful ensemble learning technique that boosts model performance by **combining multiple models**. Instead of relying on a single model, stacking lets different models **work together**, with a final model (meta-learner) making the best possible prediction.  
 
-This project aims to predict house prices accurately using a dataset from the Kaggle competition "House Prices: Advanced Regression Techniques". The focus is on applying various regression modeling techniques and combining them for potentially improved performance.
+Here, I apply stacking to a **house price prediction** problem, but the concept is useful for many types of regression and classification tasks.
 
-**Dataset**
+---
 
-* **Source:** Kaggle competition - House Prices: Advanced Regression Techniques ([https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques](https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques))
-* **Description:** The dataset includes features about houses (e.g., square footage, number of bedrooms, neighborhood) and their corresponding sale prices.
+## What is Stacking?
+Stacking is an **ensemble learning** technique that uses multiple models to make predictions and then combines those predictions using another model. This final model—the **meta-learner**—figures out the best way to weigh and use the individual models' outputs.
 
-**Methodology**
+### **How It Works**
+1. **Train Base Models**  
+   - Train different models on the dataset (e.g., Linear Regression, Random Forest, Gradient Boosting).  
+2. **Generate Predictions**  
+   - Each base model makes predictions on the dataset. These predictions are not used directly but instead serve as new inputs.  
+3. **Train a Meta-Model**  
+   - A meta-model (like Ridge Regression) learns how to combine these predictions optimally.  
+4. **Final Prediction**  
+   - The meta-model produces the final, improved prediction.
 
-1. **Data Preprocessing:**
-   * Handling missing values (imputation techniques)
-   * Addressing outliers
-   * Encoding categorical features
-   * Feature scaling or normalization (if necessary)
+Here’s a simple **visual representation of the stacking process**:
 
-2. **Exploratory Data Analysis (EDA):**
-   * Visualizing relationships between features and the target variable (sale price)
-   * Examining distributions of key variables
-   * Identifying potential correlations
+                     Raw Data
+                        │
+                        ▼
+    ┌──────────────────────────────────────────┐
+    │ Train Base Models (Linear, RF, XGB, LGB) │
+    └──────────────────────────────────────────┘
+                        │
+                        ▼
+     ┌───────────────────────────────────────┐
+     │ Base Model Predictions (New Features) │
+     └───────────────────────────────────────┘                   
+                        │
+                        ▼
+      ┌─────────────────────────────────────┐
+      │ Train Meta-Model (Ridge Regression) │
+      └─────────────────────────────────────┘
+                        │
+                        ▼
+                 Final Prediction
 
-3. **Regression Modeling:**
-   * Linear Regression
-   * Lasso Regression 
-   * Random Forest Regressor
-   * Gradient Boosting Regressor
-   * XGBoost Regressor 
-   * LightGBM Regressor
+---
 
-4. **Model Evaluation**
-   * Employing cross-validation techniques
-   * Using Root Mean Squared Error (RMSE) as a primary evaluation metric
+## How Stacking Was Implemented in This Project
 
-5. **Model Ensembling:**
-   * Averaging predictions from multiple models
-   * Implementing stacking techniques
+### **Step 1: Train Individual Models**  
+The following models were used as base learners:  
+- **Linear Regression** – Simple, interpretable baseline.  
+- **Lasso Regression** – Helps with feature selection.  
+- **Random Forest Regressor** – Captures non-linearity and interactions.  
+- **Gradient Boosting (XGBoost & LightGBM)** – Handles complex patterns efficiently.  
 
-**Technologies**
+### **Step 2: Generate Out-of-Fold Predictions**  
+To avoid **data leakage**, I used cross-validation to generate **out-of-fold predictions** for each model. These predictions were then used as input features for the meta-learner.
 
-* **Python**
-* **NumPy**
-* **Pandas**
-* **Matplotlib**
-* **Seaborn**
-* **Scikit-learn** 
-* **XGBoost**
-* **LightGBM**
+### **Step 3: Train the Meta-Model**  
+I used **Ridge Regression** as the meta-model because:
+- It balances the predictions well.
+- It prevents overfitting with regularization.
+- It works well with correlated inputs (which stacked predictions often are).
 
-**Usage**
+### **Step 4: Evaluate Performance**  
+I compared the **Root Mean Squared Error (RMSE)** for:
+- Each individual model
+- The stacked model
 
-1. **Prerequisites:** Ensure you have the necessary libraries installed (`pip install -r requirements.txt`)
-2. **Download Data:** Obtain the 'train.csv', 'test.csv', and 'sample_submission.csv' files from the Kaggle competition page.
+The **stacked model consistently outperformed the individual models**, proving the strength of combining multiple learners.
 
-**Results**
+---
 
-The project generates predictions in the form of submission files (e.g., 'rf_submission.csv'). Model performance metrics are displayed during execution.
+## Results
+| Model | RMSE (Lower is Better) |
+|--------|----------------|
+| Linear Regression | 27878.786 |
+| Random Forest | 25708.871 |
+| XGBoost | 23123.952 |
+| LightGBM | 23398.139 |
+| GradientBoost | 23123.952 |
+| **Stacked Model** | **21906.231** |
 
-**Future Directions**
+While exact values depend on data splits and hyperparameters, **the stacked model outperformed all individual models**.
 
-* **Experiment with additional features:** Create new features or explore external datasets that might improve predictions.  
-* **Hyperparameter tuning:** Fine-tune the models for potentially better performance.
-* **Explore different ensemble methods:** Experiment with alternative model combination techniques.  
+---
+
+## Why Stacking Works
+- **Uses multiple perspectives** – Linear models are good for interpretability, while tree-based models handle non-linearity. Stacking blends them.  
+- **Reduces bias & variance** – A single model may overfit or underfit, but stacking balances these issues.  
+- **Learns optimal weights automatically** – Unlike bagging/boosting, stacking lets the meta-model decide which base models matter most.  
+
+---
+
+## Notes 
+This project is mainly focused on showcasing **how stacking works**. The model can be improved by:
+- **Better feature engineering** – Creating new features to improve predictions.  
+- **Hyperparameter tuning** – Using **Optuna** to find the best settings.  
+- **Using more powerful base models** – Incorporating advanced models in the ensemble.  
+
+---
