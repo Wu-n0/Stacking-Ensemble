@@ -48,13 +48,12 @@ Here’s a simple **visual representation of the stacking process**:
 
 ### **Step 1: Train Individual Models**  
 The following models were used as base learners:  
-- **Linear Regression** – Simple, interpretable baseline.  
-- **Lasso Regression** – Helps with feature selection.  
+- **Linear Regression** – Simple, interpretable baseline.   
 - **Random Forest Regressor** – Captures non-linearity and interactions.  
 - **Gradient Boosting (XGBoost & LightGBM)** – Handles complex patterns efficiently.  
 
 ### **Step 2: Generate Out-of-Fold Predictions**  
-To avoid **data leakage**, I used cross-validation to generate **out-of-fold predictions** for each model. These predictions were then used as input features for the meta-learner.
+I used cross-validation to generate **out-of-fold predictions** for each model. These predictions were then used as input features for the meta-learner.
 
 ### **Step 3: Train the Meta-Model**  
 I used **Ridge Regression** as the meta-model because:
